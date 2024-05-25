@@ -1,4 +1,3 @@
-import { Sign } from 'crypto';
 import Link from 'next/link';
 
 interface Nav {
@@ -27,11 +26,11 @@ export const navs: Nav[] = [
 
 export default function NavHeader() {
   return (
-    <nav className='flex flex-row items-center justify-center w-full'>
+    <nav className='flex flex-row items-center justify-center w-full gap-10 mt-8'>
       {
         navs.map(({ href, label }) => {
           return (
-            <NavItem href={href} label={label} key={href + label} />
+            <NavItem href={href} label={label} key={label} />
           )
         }
         )
@@ -42,7 +41,7 @@ export default function NavHeader() {
 
 export function NavItem({ href, label }: Nav) {
   return (
-    <Link href={href}>
+    <Link href={href} className="text-3xl text-gray-400 hover:text-gray-800">
       {label}
     </Link>
   )
