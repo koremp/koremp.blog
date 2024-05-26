@@ -3,7 +3,9 @@ import { AlternateEmail, Edit, GitHub, LinkedIn } from '@mui/icons-material';
 
 export default function Footer() {
   return (
-    <footer className='flex flex-row items-center justify-center w-full gap-10'>
+    <footer className='flex flex-col items-center justify-center w-full gap-2'>
+      <div className='text-3xl'>Personal Links</div>
+      <div className='flex flex-row items-center justify-center w-full gap-10'>
       {
         linkItems.map(({ href, children }: LinkItem) => {
           return (
@@ -13,6 +15,7 @@ export default function Footer() {
           )
         })
       }
+      </div>
     </footer>
   )
 }
