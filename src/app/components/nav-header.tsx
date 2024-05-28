@@ -1,4 +1,9 @@
+"use client"
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { twMerge } from 'tailwind-merge'
+import { clsx } from 'clsx'
 
 interface Nav {
   href: string
@@ -40,9 +45,16 @@ export default function NavHeader() {
 }
 
 export function NavItem({ href, label }: Nav) {
+  const pathname = usePathname()
+
   return (
-    <Link href={href} className="text-3xl text-gray-400 hover:text-gray-800">
+    <Link href={href}
+      className={twMerge(clsx(
+        "text-3xl text-gray-400 hover:text-gray-800",
+        pathname.startsWith(href) ? "text-gray-600" : "text-gray-400"
+      ))}
+    >
       {label}
-    </Link>
+    </Link >
   )
 }
