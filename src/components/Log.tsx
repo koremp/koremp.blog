@@ -19,7 +19,6 @@ export default function Log() {
           Since Born
         </div>
       </div>
-
     </div>
   )
 }
