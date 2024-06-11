@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Footer from './components/footer';
-import NavHeader from './components/nav-header';
+import Footer from '../components/footer';
+import NavHeader from '../components/nav-header';
 
 export const metadata: Metadata = {
   title: "koremp.blog",
