@@ -1,5 +1,7 @@
-export default function BlogPage() {
+import { Directory } from '@/components/directory';
+
+export default function BlogRootPage() {
   return (
-    <main>Blog Pages</main>
+    <Directory href='posts/prev' />
   )
 }
