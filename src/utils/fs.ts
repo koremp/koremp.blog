@@ -1,16 +1,20 @@
-import {PathLike, readdirSync, readFileSync} from 'fs'
-import path from 'path';
+import { PathLike, readdirSync, readFileSync, existsSync } from 'fs'
+import path  from 'path';
 import matter from 'gray-matter';
+import { remark } from 'remark';
+import html from 'remark-html';
 
 const getDirectoryInfo = (path: PathLike) => {
   const dirents = readdirSync(path, {withFileTypes : true})
   const dirs = dirents
     .filter(dirent => dirent.isDirectory())
     .sort((a, b) => a.name.localeCompare(b.name))
+    .map((dir) => dir.name)
 
   const files = dirents
     .filter(dirent => dirent.isFile())
     .sort((a, b) => a.name.localeCompare(b.name))
+    .map((file)=> file.name)
 
   return {
     dirs,
@@ -18,39 +22,36 @@ const getDirectoryInfo = (path: PathLike) => {
   }
 }
 
+const isReadmeExist = (href: string) => {
+  const fileName = path.join(href, 'README.md')
 
-export function getSortedPostsData(href: string) {
-  const postsDirectory = path.join(process.cwd(), href);
+  if(existsSync(fileName)){
+    const content = readFileSync(
+      fileName.replace(/\.md$/, '')
+      ,'utf-8')
+    const matterResult = matter(content)
 
-  const fileNames = readdirSync(postsDirectory);
-  const allPostsData = fileNames.map((fileName) => {
-    // Remove ".md" from file name to get id
-    const id = fileName.replace(/\.md$/, '');
+    return matterResult
+  }
 
-    // Read markdown file as string
-    const fullPath = path.join(postsDirectory, fileName);
-    const fileContents = readFileSync(fullPath, 'utf8');
+  return undefined
+}
 
-    // Use gray-matter to parse the post metadata section
-    const matterResult = matter(fileContents);
+const getPostData = async (href: string) => {
+  const matterResult = matter(readFileSync(href, 'utf-8'))
 
-    // Combine the data with the id
-    return {
-      id,
-      ...matterResult.data,
-    };
-  });
-  // Sort posts by date
-  return allPostsData.sort((a, b) => {
-    if (a.date < b.date) {
-      return 1;
-    } else {
-      return -1;
-    }
-  });
+  const processedContent = await remark()
+    .use(html)
+    .process(matterResult.content);
+
+  const contentHtml = processedContent.toString();
+
+  return contentHtml
 }
 
 export {
-  getDirectoryInfo
+  getDirectoryInfo,
+  isReadmeExist,
+  getPostData
 }
 
