@@ -1,57 +1,57 @@
-import { PathLike, readdirSync, readFileSync, existsSync } from 'fs'
-import path  from 'path';
+import dayjs from 'dayjs';
+import { Dirent, readdirSync } from 'fs';
+import {sync} from 'glob'
 import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
+import path from 'path';
+import readingTime from 'reading-time';
 
-const getDirectoryInfo = (path: PathLike) => {
-  const dirents = readdirSync(path, {withFileTypes : true})
-  const dirs = dirents
-    .filter(dirent => dirent.isDirectory())
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((dir) => dir.name)
+const postDirectory = '/posts';
+const rootPostDirectory = path.join(process.cwd(), postDirectory);
 
-  const files = dirents
-    .filter(dirent => dirent.isFile())
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((file)=> file.name)
+export const getUrl = (dirPath: string) => path.join('blog', dirPath);
+
+export const getDirInfo = (dirPath?: string) => {
+  const folder = (dirPath !== undefined)
+    ? path.join(rootPostDirectory, dirPath)
+    : rootPostDirectory;
+  console.log(folder)
+  const dirents: Dirent[] = readdirSync(folder, {withFileTypes : true});
+  const dirList = getDirList(dirents);
+  const postList = getPostList(dirents);
 
   return {
-    dirs,
-    files
+    dirList,
+    postList,
   }
 }
 
-const isReadmeExist = (href: string) => {
-  const fileName = path.join(href, 'README.md')
-
-  if(existsSync(fileName)){
-    const content = readFileSync(
-      fileName.replace(/\.md$/, '')
-      ,'utf-8')
-    const matterResult = matter(content)
-
-    return matterResult
-  }
-
-  return undefined
+export interface IDirectory {
+  name: string
+  path: string
+  url: string
+  count: number
 }
 
-const getPostData = async (href: string) => {
-  const matterResult = matter(readFileSync(href, 'utf-8'))
-
-  const processedContent = await remark()
-    .use(html)
-    .process(matterResult.content);
-
-  const contentHtml = processedContent.toString();
-
-  return contentHtml
+export const getDirList= (dirents: Dirent[]): IDirectory[] => {
+  return dirents
+    .filter(d => d.isDirectory())
+    .map(d => {
+      const dirPath = path.join(rootPostDirectory, d.name)
+      return {
+         name: d.name,
+         path: dirPath,
+         url: getUrl(d.name),
+         count: getPostCount(dirPath)
+      }
+    });
 }
 
-export {
-  getDirectoryInfo,
-  isReadmeExist,
-  getPostData
+export const getPostList = (dirents: Dirent[]): string[] => {
+  return dirents
+    .filter(d => d.isFile())
+    .map(d => d.name);
 }
 
+export const getPostCount = (dirPath: string): number => {
+  return sync(`${dirPath}/**/*.{md,mdx}`).length;
+}
