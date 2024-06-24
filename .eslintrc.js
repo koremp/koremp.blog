@@ -31,7 +31,8 @@ module.exports = {
   rules: {
     indent: ['error', 2],
     'no-trailing-spaces': 'error',
-    curly: 'error',
+    'curly': 'error',
+    'semi': 'always',
     'brace-style': 'error',
     'no-multi-spaces': 'error',
     'space-infix-ops': 'error',
