@@ -12,16 +12,12 @@ interface Nav {
 
 export const navs: Nav[] = [
   {
-    href: '/',
+    href: '/home',
     label: "Home",
   },
   {
     href: '/about',
     label: 'About'
-  },
-  {
-    href: '/prev',
-    label: "Previous Posts",
   },
   {
     href: '/blog',
