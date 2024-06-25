@@ -18,16 +18,14 @@ export const DirectoryPage = ({ slug }: { slug: string[] }) => {
     return <PostPage slug={slug} />
   }
 
-  const { dirList, postList, readme } = getDirInfo({ slug });
+  const { dirList, postList, post } = getDirInfo({ slug });
   if (dirList === undefined) {
     return <div>error</div>
   }
 
-  console.log(readme)
-
   return (
     <div>
-      {readme && <PostPage slug={readme.slug} />}
+      {post && <PostPage slug={post.slug} />}
       <div className='flex flex-col gap-2'>
         {dirList.map(d => (
           <Link href={d.href}>
