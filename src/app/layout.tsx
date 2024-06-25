@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google"
 
 import "./globals.css";
 
-import Footer from '../components/footer';
-import NavHeader from '../components/nav-header';
-
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
+import Footer from '../components/common/footer';
+import NavHeader from '../components/common/nav-header';
 
 export const metadata: Metadata = {
   title: "koremp.blog",
