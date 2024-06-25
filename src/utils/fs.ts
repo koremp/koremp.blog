@@ -10,51 +10,80 @@ const postDirectory = '/posts';
 const rootPostDirectory = path.join(process.cwd(), postDirectory);
 
 export const isPathDirectory = (givenPath: string) => existsSync(givenPath) && lstatSync(path.join(rootPostDirectory, givenPath)).isDirectory();
-export const isPathFile = (givenPath: string) => existsSync(givenPath) && lstatSync(path.join(rootPostDirectory, givenPath)).isFile()
+export const isPathPost = (givenPath: string) => existsSync(givenPath) && lstatSync(path.join(rootPostDirectory, givenPath)).isFile()
+export const getDirPathFromSlug = (slug: string[]) => {
+  if(slug.length === 0)
+  {
+    return rootPostDirectory;
+  }
+  return path.join(rootPostDirectory, slug.join('/'));
+}
 
-// return dir-list, post-list and readme if readme exist
-export const getDirInfo = ({ givenPath }: { givenPath: string }) => {
-  const localPath = path.join(rootPostDirectory, givenPath);
-  console.log(localPath)
+// return dir-list, post-list and isReadmeExist
+export const getDirInfo = ({ slug }: { slug: string[] })=> {
+  const givenPath = slug.join('/');
+
+  // if slug is post link, return readme
+  if(isPathPost(givenPath)) {
+    return {
+      dirList: undefined,
+      postList: undefined,
+      readme: parsePost(slug)
+    };
+  }
+
+  const localPath
+    = (slug.length === 0)
+     ? rootPostDirectory
+     : path.join(rootPostDirectory, givenPath);
+  const postDirPath =
+    (slug.length === 0)
+      ? '/blog'
+      : slug[slug.length - 1];
 
   const dirents: Dirent[] = readdirSync(localPath, { withFileTypes: true });
   const dirList = getDirListFromDirents({ dirents, givenPath });
-  const postList = getPostListFromDirents({ dirents, givenPath });
+  const postList = getPostListFromDirents({ dirents, postDirPath });
 
   const readmeIndex = postList
     .findIndex(post => post.name.toLowerCase() === 'readme.md');
 
-  console.log(givenPath)
-  // console.log(dirList, postList)
-
-  // if readme is exist
+  // if readme is exist, return readme
   if(readmeIndex !== -1) {
-    const readme = [...postList][readmeIndex];
-    postList.splice(readmeIndex, 1);
-    console.log(readme)
-
     return {
       dirList,
       postList,
-      readme: parsePost(path.join(readme.name))
+      readme: { slug: [...slug, postList[readmeIndex].name] }
     }
   }
 
-  // if readme is undefined
+  // if readme is undefined, return undefined
   return { dirList, postList, readme: undefined };
 }
 
-export const getDirListFromDirents = ({ dirents, givenPath }: {dirents: Dirent[], givenPath: string}) => {
+/*
+
+files: posts/cs/1/2/3/test.md
+
+when url blog/cs/1
+slug: cs/1/2/3 (parent dir + current dir)
+givenpath = cs/1
+dirents = dir names in slug
+subdir in givenpath: rootPostDir/givenPath/d.name
+href =
+
+*/
+export const getDirListFromDirents = ({ dirents, givenPath }:
+  { dirents: Dirent[], givenPath: string }) => {
   const dirList = dirents
     .filter(d => d.isDirectory())
     .map(d => {
-      const subPostCount = sync(`${rootPostDirectory}/${givenPath}/${d.name}/**/*.{md,mdx}`).length;
+      const subDirPath = path.join(rootPostDirectory, givenPath, d.name)
+      const subPostCount = sync(`${subDirPath}/**/*.{md,mdx}`).length;
       return {
         name: d.name,
-        localPath:
-          givenPath === '/'
-            ? path.join(rootPostDirectory, d.parentPath)
-            : path.join(d.parentPath, d.name),
+        // localPath: path.join(`${rootPostDirectory}/${givenPath}/${d.name}`),
+        localPath: `${d.parentPath}/${d.name}`,
         href: path.join(givenPath, d.name),
         subPostCount
       };
@@ -64,21 +93,28 @@ export const getDirListFromDirents = ({ dirents, givenPath }: {dirents: Dirent[]
   return dirList;
 }
 
-export const getPostListFromDirents = ({ dirents, givenPath }:{dirents: Dirent[], givenPath: string}) => {
+export const getPostListFromDirents = ({ dirents, postDirPath }:
+  {dirents: Dirent[], postDirPath: string}) => {
   const postList = dirents
     .filter(d => d.isFile())
     .map(post => {
+      console.log(post)
       return {
         name: post.name,
-        localPath: path.join(rootPostDirectory, post.parentPath),
-        href: path.join(givenPath, post.name),
+        localPath: path.join(post.parentPath, postDirPath, post.name),
+        href: path.join(postDirPath, post.name),
       }
     });
 
   return postList;
 }
 
-export const parsePost = (postPath: string) => {
+export const parsePost = (slug: string[]) => {
+  const postPath
+    = (slug.length === 0)
+    ? rootPostDirectory
+    : path.join(rootPostDirectory, slug.join('/'));
+  console.log(postPath)
   const post = readFileSync(postPath, 'utf-8');
   const { data, content } = matter(post);
   const grayMatter = data;

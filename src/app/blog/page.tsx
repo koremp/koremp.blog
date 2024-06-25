@@ -1,7 +1,11 @@
-import { Directory } from '@/components/directory';
+import { DirectoryPage } from '@/components/blog/post-list-page'
 
-export default function BlogRootPage() {
+export const dynamicParams = false;
+
+const BlogRootPage = async () => {
   return (
-    <Directory href='posts/prev' />
+    <DirectoryPage slug={[]} />
   )
 }
+
+export default BlogRootPage;
