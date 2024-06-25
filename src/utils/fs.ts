@@ -9,8 +9,8 @@ import readingTime from 'reading-time';
 const postDirectory = '/posts';
 const rootPostDirectory = path.join(process.cwd(), postDirectory);
 
-export const isPathDirectory = (givenPath: string) => existsSync(givenPath) && lstatSync(path.join(rootPostDirectory, givenPath)).isDirectory();
-export const isPathPost = (givenPath: string) => existsSync(givenPath) && lstatSync(path.join(rootPostDirectory, givenPath)).isFile()
+export const isPathDirectory = (givenPath: string) => lstatSync(path.join(rootPostDirectory, givenPath)).isDirectory();
+export const isPathPost = (givenPath: string) => lstatSync(path.join(rootPostDirectory, givenPath)).isFile()
 export const getDirPathFromSlug = (slug: string[]) => {
   if(slug.length === 0)
   {
@@ -25,10 +25,11 @@ export const getDirInfo = ({ slug }: { slug: string[] })=> {
 
   // if slug is post link, return readme
   if(isPathPost(givenPath)) {
+    console.log(slug)
     return {
       dirList: undefined,
       postList: undefined,
-      readme: parsePost(slug)
+      post: parsePost(slug)
     };
   }
 
@@ -36,15 +37,13 @@ export const getDirInfo = ({ slug }: { slug: string[] })=> {
     = (slug.length === 0)
      ? rootPostDirectory
      : path.join(rootPostDirectory, givenPath);
-  const baseHref=
-    (slug.length === 0)
+  const baseHref
+    = (slug.length === 0)
       ? '/blog'
-      : slug[slug.length - 1];
-
-  console.log(baseHref, '123')
+      : slug[slug.length - 1]
 
   const dirents: Dirent[] = readdirSync(localPath, { withFileTypes: true });
-  const dirList = getDirListFromDirents({ dirents, baseHref, isRoot: true });
+  const dirList = getDirListFromDirents({ dirents, slug });
   const postList = getPostListFromDirents({ dirents, baseHref });
 
   const readmeIndex = postList
@@ -55,12 +54,13 @@ export const getDirInfo = ({ slug }: { slug: string[] })=> {
     return {
       dirList,
       postList,
-      readme: { slug: [...slug, postList[readmeIndex].name] }
+      post: { slug: [...slug, postList[readmeIndex].name] }
     }
   }
 
+
   // if readme is undefined, return undefined
-  return { dirList, postList, readme: undefined };
+  return { dirList, postList, post: undefined };
 }
 
 /*
@@ -75,25 +75,32 @@ subdir in givenpath: rootPostDir/givenPath/d.name
 href =
 
 */
-export const getDirListFromDirents = ({ dirents, baseHref }:
-  { dirents: Dirent[], baseHref: string, isRoot: boolean }) => {
+export const getDirListFromDirents = ({ dirents, slug }:
+  { dirents: Dirent[], slug: string[] }) => {
+  const basePath
+    = slug.length === 0
+      ? '/blog'
+      : slug[slug.length - 1];
+
+  console.log(basePath)
+
   const dirList = dirents
     .filter(d => d.isDirectory())
     .map(d => {
-      const subDirPath
-        = (baseHref === '/blog')
-          ? path.join(rootPostDirectory, d.name)
-          : path.join(rootPostDirectory, baseHref, d.name)
+      const subDirPath = path.join(rootPostDirectory, slug.join('/'), d.name)
       const subPostCount = sync(`${subDirPath}/**/*.{md,mdx}`).length;
       console.log(subDirPath, subPostCount)
+      console.log(d)
       return {
         name: d.name,
         localPath: subDirPath,
-        href: path.join(baseHref, d.name),
+        href: path.join(basePath, d.name),
         subPostCount
       };
     })
     .filter(d => d.subPostCount !== 0);
+
+  console.log(dirList[0])
 
   return dirList;
 }
