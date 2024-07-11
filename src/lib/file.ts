@@ -19,7 +19,7 @@ export const getBaseHref = (slug: string[]) => (slug.length === 0
 /* eslint-disable */
 export const isSlugDirectory = (slug: string[]) => lstatSync(path.join(rootPostDirectory, joinSlug(slug))).isDirectory();
 export const isSlugFile = (slug: string[]) => lstatSync(path.join(rootPostDirectory, joinSlug(slug), '.md')).isFile();
-export const isPathDirectory = (localPath: string)=> lstatSync(path.join(rootPostDirectory, localPath)).isDirectory();
+export const isPathDirectory = (localPath: string)=> lstatSync(localPath).isDirectory();
 export const isPathFile= (localPath: string) => lstatSync(localPath).isDirectory();
 /* eslint-enable */
 
@@ -42,8 +42,8 @@ export const getDirectoryInfo = (slug: string[]) => {
   const itemList = getLocalDirents(localPath);
 
   const directoryInfo = itemList.map(({ name }: Dirent): DirectoryItem => {
-    const itemPath = path.join(localPath, name, '.md');
-    const isDirectory = isPathFile(itemPath);
+    const itemPath = path.join(localPath, name);
+    const isDirectory = isPathDirectory(itemPath);
 
     return {
       name,
