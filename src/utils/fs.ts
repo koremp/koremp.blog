@@ -1,4 +1,3 @@
-import { BedroomParentSharp } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { Dirent, existsSync, lstatSync, readFileSync, readdirSync } from 'fs';
 import { sync } from 'glob'
@@ -9,23 +8,43 @@ import readingTime from 'reading-time';
 const postDirectory = '/posts';
 const rootPostDirectory = path.join(process.cwd(), postDirectory);
 
-export const isPathDirectory = (givenPath: string) => lstatSync(path.join(rootPostDirectory, givenPath)).isDirectory();
-export const isPathPost = (givenPath: string) => lstatSync(path.join(rootPostDirectory, givenPath)).isFile()
-export const getDirPathFromSlug = (slug: string[]) => {
-  if(slug.length === 0)
-  {
-    return rootPostDirectory;
+export const joinSlug = (slug: string[]) => slug.join('/');
+
+export const getLocalPath = (slug: string[]) =>
+  slug.length === 0
+    ? rootPostDirectory
+    : path.join(rootPostDirectory, joinSlug(slug));
+
+export const getBaseHref = (slug: string[]) =>
+  slug.length === 0
+    ? '/blog'
+    : slug[slug.length - 1]
+
+export const isPathDirectory = (slug: string[]) => lstatSync(path.join(rootPostDirectory, joinSlug(slug))).isDirectory();
+export const isPathPost = (slug: string[]) => lstatSync(path.join(rootPostDirectory, joinSlug(slug))).isFile();
+
+export const findIndexFromPostList = (postList: Dirent[]) => postList.findIndex((post) => post.name.toLowerCase() === 'readme.md');
+
+export const isDirectoryContainsReadme = (slug: string[]) => {
+  if(!isPathDirectory(slug)) {
+    return false;
   }
-  return path.join(rootPostDirectory, slug.join('/'));
+
+  const localPath = getLocalPath(slug)
+  const postList = readdirSync(localPath , { withFileTypes: true })
+
+  return postList.findIndex((post) => post.name.toLowerCase() === 'readme.md');
 }
+
+export const getDirPathFromSlug = (slug: string[]) => slug.length !== 0
+    ? path.join(rootPostDirectory, joinSlug(slug))
+    : rootPostDirectory;
 
 // return dir-list, post-list and isReadmeExist
 export const getDirInfo = ({ slug }: { slug: string[] })=> {
-  const givenPath = slug.join('/');
 
   // if slug is post link, return readme
-  if(isPathPost(givenPath)) {
-    console.log(slug)
+  if(isPathPost(slug)) {
     return {
       dirList: undefined,
       postList: undefined,
@@ -33,14 +52,8 @@ export const getDirInfo = ({ slug }: { slug: string[] })=> {
     };
   }
 
-  const localPath
-    = (slug.length === 0)
-     ? rootPostDirectory
-     : path.join(rootPostDirectory, givenPath);
-  const baseHref
-    = (slug.length === 0)
-      ? '/blog'
-      : slug[slug.length - 1]
+  const localPath = getLocalPath(slug);
+  const baseHref = getBaseHref(slug);
 
   const dirents: Dirent[] = readdirSync(localPath, { withFileTypes: true });
   const dirList = getDirListFromDirents({ dirents, slug });
