@@ -31,8 +31,8 @@ module.exports = {
   rules: {
     indent: ['error', 2],
     'no-trailing-spaces': 'error',
-    'curly': 'error',
-    'semi': 'always',
+    curly: 'error',
+    semi: 2,
     'brace-style': 'error',
     'no-multi-spaces': 'error',
     'space-infix-ops': 'error',
@@ -55,6 +55,12 @@ module.exports = {
     'no-proto': 'off',
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
-    'react/jsx-filename-extension': [1, 'extensions': ['.jsx', '.tsx']]
+    'react/jsx-filename-extension': [1, { extensions: ['.jsx', '.tsx'] }],
+    'import/extensions': ['error', 'never', {
+      js: 'never',
+      jsx: 'never',
+      ts: 'never',
+      tsx: 'never',
+    }],
   },
 };
