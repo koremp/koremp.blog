@@ -3,10 +3,10 @@ import { readFileSync } from 'fs';
 import matter from 'gray-matter';
 import readingTime from 'reading-time';
 
-import { getLocalPath } from './file';
+import { getDirPath } from './file';
 
 export const parsePost = (slug: string[]) => {
-  const postPath = getLocalPath(slug);
+  const postPath = getDirPath(slug);
   const post = readFileSync(postPath, 'utf-8');
   const { data, content } = matter(post);
   const grayMatter = data;

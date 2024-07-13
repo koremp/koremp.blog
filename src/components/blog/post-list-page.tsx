@@ -7,8 +7,8 @@ import { parsePost } from '@/lib/post';
 export function DirectoryPage({ slug }: { slug: string[] }) {
   const directoryInfo = getDirectoryInfo(slug);
 
-  const directoryList = directoryInfo.filter((item) => item.isDirectory);
-  const postList = directoryInfo.filter((item) => !item.isDirectory);
+  const directoryList = directoryInfo.filter((item) => item.isDir);
+  const postList = directoryInfo.filter((item) => !item.isDir);
   const readme = directoryInfo.find((item) => item.name === 'readme');
 
   return (

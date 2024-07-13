@@ -1,5 +1,5 @@
 import { DirectoryPage, PostPage } from '@/components/blog/post-list-page';
-import { isSlugDirectory, isSlugFile } from '../../../lib/file';
+import { isSlugDir, isSlugFile } from '../../../lib/file';
 
 export const dynamicParams = false;
 
@@ -8,7 +8,7 @@ export function BlogSlugPage({ params }: { params: { slug: string[] } }) {
     return <PostPage slug={params.slug} />;
   }
 
-  if (isSlugDirectory(params.slug)) {
+  if (isSlugDir(params.slug)) {
     return <DirectoryPage slug={params.slug} />;
   }
 
