@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
+import React from 'react';
 
-import "./globals.css";
+import './globals.css';
 
-import Footer from '../components/common/footer';
-import NavHeader from '../components/common/nav-header';
+import Footer from '@/components/common/footer';
+import NavHeader from '@/components/common/nav-header';
 
 export const metadata: Metadata = {
-  title: "koremp.blog",
+  title: 'koremp.blog',
   description: "koremp's blog",
 };
 
